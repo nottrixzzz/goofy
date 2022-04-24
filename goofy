@@ -1,0 +1,18 @@
+    private ulong camoScan()
+        {//                                            48 8D 04 40 4C 8D 8E ? ? ? ? 4D 8D 0C C1 8D 42 FF
+            ulong xasset = m.FindBytes(new byte?[] { 0x48, 0x8D, 0x04, 0x40, 0x4C, 0x8D, 0x8E, null, null, null, null, 0x4D, 0x8D, 0x0C, 0xC1, 0x8D, 0x42, 0xFF }, m.BaseAddress + 0x2900000, m.BaseAddress + 0x3900000, true)[0] + 7;
+            if (m.IsValidAddr(xasset))
+            {
+                ulong csvPoolData = m.BaseAddress + (ulong)m.ReadInt32(xasset) + (54 * 24);
+                int poolSize = m.ReadInt32(csvPoolData + 16);
+                ulong startOfPool = m.ReadInt64(csvPoolData);
+                for (int i = 0; i < poolSize; i++)
+                {
+                    if (String.Compare(m.ReadNullTerminatedString(m.ReadInt64(startOfPool)), "loot/camo_ids.csv") == 0)
+                        return m.ReadInt64(m.ReadInt64(startOfPool + 40) + 8);
+                    startOfPool += 48UL;
+                }
+                return 0UL;
+            }
+            return 0UL;
+        }
